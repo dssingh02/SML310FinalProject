@@ -1,6 +1,6 @@
 clear;
 
-vid_src = "rally_videos/rally_1.mp4";
+vid_src = "rally_videos/rally_6.mp4";
 vid = VideoReader(vid_src);
 
 idx = round(vid.NumFrames/3);
@@ -27,10 +27,13 @@ end
 net = dlnetwork(layers);
 
 %%
-% img = vid.read(500);
-img = imread('test_pose.jpg');
-% for i = 1:30:vid.NumFrames
-%     img = vid.read(i);
+img = vid.read(500);
+% img = imread('test_pose.jpg');
+vid_obj = VideoWriter('rally_6_pose_estimation.mp4', 'MPEG-4');
+vid_obj.FrameRate = 29.97;
+open(vid_obj);
+for i = 1:1:vid.NumFrames
+    img = vid.read(i);
     netInput = im2single(img)-0.5;
     netInput = netInput(:,:,[3 2 1]);
     netInput = dlarray(netInput,"SSC");
@@ -56,8 +59,11 @@ img = imread('test_pose.jpg');
     params = getBodyPoseParameters;
     poses = getBodyPoses(heatmaps,pafs,params);
     figure(1)
-    renderBodyPoses(img,poses,size(heatmaps,1),size(heatmaps,2),params);
-% end
+    im = renderBodyPoses(img,poses,size(heatmaps,1),size(heatmaps,2),params);
+    writeVideo(vid_obj, im);
+end
+
+close(vid_obj);
 
 
 
